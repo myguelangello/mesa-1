@@ -19,16 +19,7 @@ export default function App() {
       </Text>
 
       <View className="w-full items-center">
-        {/* <Button
-          title="Continue com Google"
-          activeOpacity={0.8}
-          className="mt-14"
-          icon="sign-in-alt"
-        /> */}
-        {/* <Text className="mt-4 font-inter text-sm text-gray-300">ou</Text> */}
-
         <Button icon="google" title="Continuar com Google" className="mt-14" />
-        {/* <User /> */}
       </View>
 
       <StatusBar style="auto" />
