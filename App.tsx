@@ -1,12 +1,22 @@
 import { StatusBar } from 'expo-status-bar'
 import { Text, View } from 'react-native'
 
-import { useFonts, Inter_600SemiBold } from '@expo-google-fonts/inter'
+import {
+  useFonts,
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+} from '@expo-google-fonts/inter'
+
 import { Loading } from './app/components/Loading'
 import { Button } from './app/components/Button'
 
 export default function App() {
-  const [hasLoadedFonts] = useFonts({ Inter_600SemiBold })
+  const [hasLoadedFonts] = useFonts({
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+  })
 
   if (!hasLoadedFonts) {
     return <Loading />
