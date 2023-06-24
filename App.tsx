@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar'
-import { Text, View } from 'react-native'
+import { View } from 'react-native'
 
 import {
   useFonts,
@@ -10,6 +10,7 @@ import {
 
 import { Loading } from './app/components/Loading'
 import { Button } from './app/components/Button'
+import { Title } from './app/components/Title'
 
 export default function App() {
   const [hasLoadedFonts] = useFonts({
@@ -24,12 +25,10 @@ export default function App() {
 
   return (
     <View className="flex-1 items-center justify-center bg-gray-50 px-5">
-      <Text className="font-inter text-3xl leading-tight text-gray-950">
-        Olá, bem-vindo ao Mesa1
-      </Text>
+      <Title content="Olá, bem-vindo ao Mesa1" />
 
       <View className="w-full items-center">
-        <Button icon="google" title="Continuar com Google" className="mt-14" />
+        <Button icon="list" title="Continuar com Google" className="mt-14" />
       </View>
 
       <StatusBar style="auto" />
