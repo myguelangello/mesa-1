@@ -9,6 +9,7 @@ import {
 } from '@expo-google-fonts/inter'
 
 import Loading from './app/components/Loading'
+import Services from './app/screens/Services'
 
 export default function App() {
   const [hasLoadedFonts] = useFonts({
@@ -23,6 +24,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
+      <Services />
       <StatusBar style="auto" translucent />
     </SafeAreaProvider>
   )

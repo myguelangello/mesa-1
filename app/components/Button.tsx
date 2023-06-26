@@ -24,7 +24,7 @@ export default function Button({
     >
       <Icon name={icon} size={iconSize} color={iconColor} />
 
-      <Text className="font-interSemiBold text-lg text-gray-800">{title}</Text>
+      <Text className="font-interSemiBold text-lg text-white">{title}</Text>
     </TouchableOpacity>
   )
 }

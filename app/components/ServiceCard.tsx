@@ -1,12 +1,12 @@
 import { View, Image, Text, TouchableOpacity } from 'react-native'
 
-export interface ServiceCardProps {
+export interface ServiceProps {
   logo: string
   cargo: string
   local: string
   tempoPostagem: string
-  dataInicio: string
-  horario: string
+  dataInicio?: string
+  horario?: string
 }
 
 export default function ServiceCard({
@@ -16,7 +16,7 @@ export default function ServiceCard({
   tempoPostagem,
   dataInicio,
   horario,
-}: ServiceCardProps) {
+}: ServiceProps) {
   return (
     <View>
       <TouchableOpacity
@@ -48,7 +48,7 @@ export default function ServiceCard({
               {local}
             </Text>
             <Text className="font-interRegular text-xs text-gray-300">
-              {/* Início em: {dataInicio} |  */}Horário: {horario}
+              Data: {dataInicio} | Horário: {horario}
             </Text>
           </View>
         </View>

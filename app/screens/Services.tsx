@@ -17,7 +17,7 @@ export default function Services() {
       contentInset={{ bottom, top }}
     >
       {/* Header */}
-      <View className="mt-4 flex flex-row justify-between">
+      <View className="flex flex-row justify-between">
         <Title content="Serviços" />
         <TouchableOpacity
           activeOpacity={0.8}
