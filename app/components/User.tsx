@@ -1,7 +1,13 @@
 import React from 'react'
 import { Text, View, Image } from 'react-native'
 
-export function User() {
+export interface UserProps {
+  name: string
+  email: string
+  avatar: string
+}
+
+export default function User({ name, email, avatar }: UserProps) {
   return (
     <View className="mt-12 w-full items-center">
       <Image
@@ -10,9 +16,9 @@ export function User() {
         alt="image-user"
       />
 
-      <Text className="mt-2 font-inter text-2xl text-gray-950">Myguel</Text>
+      <Text className="font-inter mt-2 text-2xl text-gray-950">{name}</Text>
 
-      <Text className="font-inter text-sm leading-6">myguel@mail.com</Text>
+      <Text className="font-inter text-sm leading-6">{email}</Text>
     </View>
   )
 }
