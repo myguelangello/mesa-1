@@ -1,21 +1,21 @@
 import { View, Image, Text, TouchableOpacity } from 'react-native'
 
 export interface ServiceProps {
-  logo: string
-  cargo: string
-  local: string
-  tempoPostagem: string
-  dataInicio?: string
-  horario?: string
+  serviceImage: string
+  role: string
+  address: string
+  postedAgo: string
+  startDate: string
+  startTime: string
 }
 
 export default function ServiceCard({
-  logo,
-  cargo,
-  local,
-  tempoPostagem,
-  dataInicio,
-  horario,
+  serviceImage,
+  role,
+  address,
+  postedAgo,
+  startDate,
+  startTime,
 }: ServiceProps) {
   return (
     <View>
@@ -25,30 +25,30 @@ export default function ServiceCard({
       >
         {/* Create image of service */}
         <Image
-          source={{ uri: logo }}
+          source={{ uri: serviceImage }}
           className="h-20 w-20 rounded-lg"
-          alt={local}
+          alt={address}
         />
 
         <View className="h-full flex-1">
           {/* Row 1 => Role - Poosted Ago */}
           <View className="flex-row items-start justify-between space-x-2">
             <Text className="font-interSemiBold text-lg leading-tight text-gray-900">
-              {cargo}
+              {role}
             </Text>
 
             <Text className="mt-2 font-interRegular text-xs leading-relaxed text-gray-200">
-              {tempoPostagem}
+              {postedAgo}
             </Text>
           </View>
 
           {/* Row 2 => Description - Date */}
           <View className="mt-1 flex items-start">
             <Text className="mb-2 font-interRegular text-sm leading-relaxed text-gray-700">
-              {local}
+              {address}
             </Text>
             <Text className="font-interRegular text-xs text-gray-300">
-              Data: {dataInicio} | Horário: {horario}
+              Data: {startDate} | Horário de Início: {startTime}
             </Text>
           </View>
         </View>

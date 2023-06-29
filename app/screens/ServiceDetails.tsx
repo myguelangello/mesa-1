@@ -96,10 +96,3 @@ export default function ServiceDetails() {
     </ScrollView>
   )
 }
-/* 
-          cargo="Atendente de balção caixa"
-          local="Moral Burguer"
-          tempoPostagem="5 min"
-          dataInicio="01/07/2023"
-          horario="08:00 - 16:00"
-*/

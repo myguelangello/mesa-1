@@ -6,9 +6,36 @@ import Icon from '@expo/vector-icons/FontAwesome5'
 
 import ServiceCard from '../components/ServiceCard'
 import Title from '../components/Title'
+import { useEffect, useState } from 'react'
+import { api } from '../../src/lib/api'
+
+interface FetchedServiceProps {
+  title: string
+  description: string
+  hours: string
+  hours_value: string
+  created_at: string
+  updated_at: string
+}
 
 export default function Services() {
   const { bottom, top } = useSafeAreaInsets()
+
+  const [services, setServices] = useState<FetchedServiceProps[]>([])
+
+  async function getServices() {
+    try {
+      const response = await api.get('/api/services/')
+
+      setServices(response.data)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    getServices()
+  }, [])
 
   return (
     <ScrollView
@@ -35,26 +62,30 @@ export default function Services() {
       />
 
       <View className="mt-8">
+        {services.map((service, index) => {
+          return (
+            <ServiceCard
+              key={index}
+              serviceImage={
+                'https://img.freepik.com/vetores-premium/logotipo-do-estilo-vintage-retro-do-restaurante_642964-120.jpg'
+              }
+              role={service.title}
+              address={service.description}
+              postedAgo={`R$ ${parseFloat(service.hours_value).toFixed(0)}/h`}
+              startDate={service.created_at}
+              startTime={service.hours}
+            />
+          )
+        })}
         <ServiceCard
-          logo={
+          serviceImage={
             'https://img.freepik.com/vetores-premium/logotipo-do-estilo-vintage-retro-do-restaurante_642964-120.jpg'
           }
-          cargo="Atendente de balção caixa"
-          local="Moral Burguer"
-          tempoPostagem="5 min"
-          dataInicio="01/07/2023"
-          horario="08:00 - 16:00"
-        />
-
-        <ServiceCard
-          logo={
-            'https://i.pinimg.com/236x/7d/66/6c/7d666cc9a54d44cd9e74371ee99bd703.jpg'
-          }
-          cargo="Garçom"
-          local="Restaurante do Zé"
-          tempoPostagem="8 min"
-          dataInicio="30/06/2023"
-          horario="18:00 - 22:00"
+          role={''}
+          address="Moral Burguer"
+          postedAgo="5 min"
+          startDate="01/07/2023"
+          startTime="08:00 - 16:00"
         />
       </View>
     </ScrollView>
