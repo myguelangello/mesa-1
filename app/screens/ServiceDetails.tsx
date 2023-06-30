@@ -1,14 +1,35 @@
+import React, { useEffect, useState } from 'react'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ScrollView, View, Image, Text, TouchableOpacity } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 
+import { FetchedServiceProps } from './Services'
+import { api } from '../../src/lib/api'
+
 import Title from '../components/Title'
-import Button from '../components/Button'
-import React from 'react'
+
 import Icon from '@expo/vector-icons/FontAwesome5'
 
-export default function ServiceDetails() {
+export default function ServiceDetails({ route, navigation }) {
   const { bottom, top } = useSafeAreaInsets()
+
+  const [serviceDetails, setServiceDetails] = useState<FetchedServiceProps>()
+
+  const { itemId } = route.params
+
+  async function getServices() {
+    try {
+      const response = await api.get(`/api/service-detail/${itemId}`)
+
+      setServiceDetails(response.data)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    getServices()
+  }, [])
 
   return (
     <ScrollView
@@ -22,6 +43,7 @@ export default function ServiceDetails() {
           <TouchableOpacity
             activeOpacity={0.8}
             className="h-10 w-10 items-center justify-center  rounded-full bg-transparent"
+            onPress={() => navigation.goBack()}
           >
             <Icon name="chevron-left" size={24} color="#eaeaea" />
           </TouchableOpacity>
@@ -30,9 +52,9 @@ export default function ServiceDetails() {
 
           <TouchableOpacity
             activeOpacity={0.8}
-            className="h-10 w-10 items-center justify-center  rounded-full bg-transparent"
+            className="h-10 w-10 items-center justify-center  rounded-full bg-transparent "
           >
-            <Icon name="heart" size={24} color="#eaeaea" />
+            <Icon name="heart" size={24} color="#875a33" />
           </TouchableOpacity>
         </View>
         {/* Logo Image */}
@@ -49,47 +71,62 @@ export default function ServiceDetails() {
       <View className="h-full bg-white px-4">
         {/* Cargo */}
         <View className="mt-4">
-          <Text className="text-gray700 font-interSemiBold text-lg">
-            Função
+          <Text className="font-interSemiBold text-xl text-gray-700">
+            {serviceDetails?.title}
           </Text>
-          <Text className="font-interRegular text-base text-gray-500">
-            Atendente de balção e caixa
+          <Text className="font-interRegular text-base text-gray-400">
+            {serviceDetails?.description}
           </Text>
         </View>
 
         {/* Local */}
         <View className="mt-4">
-          <Text className="text-gray700 font-interSemiBold text-lg">Local</Text>
-          <Text className="font-interRegular text-base text-gray-500">
-            Moral Burguer
+          <Text className="font-interSemiBold text-lg text-gray-700">
+            Endereço
+          </Text>
+          <Text className="font-interRegular text-base text-gray-400">
+            {serviceDetails?.address}
           </Text>
         </View>
 
         {/* Data */}
         <View className="mt-4">
-          <Text className="text-gray700 font-interSemiBold text-lg">
+          <Text className="font-interSemiBold text-lg text-gray-700">
             Data prevista
           </Text>
-          <Text className="font-interRegular text-base text-gray-500">
-            Sábado, 01 de julho de 2023
+          <Text className="font-interRegular text-base text-gray-400">
+            {serviceDetails?.service_date}
           </Text>
         </View>
 
         {/* Horário */}
         <View className="mt-4">
-          <Text className="text-gray700 font-interSemiBold text-lg">
-            Horário(s) desejado(s)
+          <Text className="font-interSemiBold text-lg text-gray-700">
+            Horário previsto (carga horária)
           </Text>
-          <Text className="font-interRegular text-base text-gray-500">
-            08:00 - 16:00
+          <Text className="font-interRegular text-base text-gray-400">
+            {serviceDetails?.start_time} ({serviceDetails?.hours})
           </Text>
         </View>
 
-        <Button
-          title="Candidatar-se"
-          activeOpacity={0.9}
-          className="mt-10 self-center bg-brown-400"
-        />
+        <View className="mt-4">
+          <Text className="font-interSemiBold text-lg text-gray-700">
+            Valor por hora
+          </Text>
+          <Text className="font-interRegular text-base text-gray-400">
+            R$ {serviceDetails?.hours_value}
+          </Text>
+        </View>
+
+        {/* Candidatura */}
+        <View className="mt-8">
+          <Text className="font-interSemiBold text-xl text-gray-400">
+            Candidaturas
+          </Text>
+          <Text className="w-4/5 self-center font-interRegular text-base text-gray-200">
+            No momento não há candidaturas para este serviço
+          </Text>
+        </View>
       </View>
 
       <StatusBar style="light" translucent />

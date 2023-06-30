@@ -9,8 +9,8 @@ import {
   Inter_600SemiBold,
 } from '@expo-google-fonts/inter'
 
+import Routes from './app/routes'
 import Loading from './app/components/Loading'
-import Services from './app/screens/Services'
 
 export default function App() {
   const [hasLoadedFonts] = useFonts({
@@ -25,7 +25,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <Services />
+      <Routes />
       <StatusBar style="auto" translucent />
     </SafeAreaProvider>
   )

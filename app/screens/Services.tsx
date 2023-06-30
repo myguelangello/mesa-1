@@ -9,16 +9,20 @@ import Title from '../components/Title'
 import { useEffect, useState } from 'react'
 import { api } from '../../src/lib/api'
 
-interface FetchedServiceProps {
+export interface FetchedServiceProps {
+  id: number
   title: string
   description: string
   hours: string
   hours_value: string
   created_at: string
   updated_at: string
+  address: string
+  service_date: string
+  start_time: string
 }
 
-export default function Services() {
+export default function Services({ navigation }) {
   const { bottom, top } = useSafeAreaInsets()
 
   const [services, setServices] = useState<FetchedServiceProps[]>([])
@@ -37,6 +41,10 @@ export default function Services() {
     getServices()
   }, [])
 
+  function navigateToDetails(serviceId: number) {
+    navigation.navigate('details', { itemId: serviceId })
+  }
+
   return (
     <ScrollView
       className="flex-1 px-4"
@@ -44,7 +52,7 @@ export default function Services() {
       contentInset={{ bottom, top }}
     >
       {/* Header */}
-      <View className="flex flex-row justify-between">
+      <View className="flex flex-row justify-center">
         <Title content="Serviços" />
         <TouchableOpacity
           activeOpacity={0.8}
@@ -62,31 +70,25 @@ export default function Services() {
       />
 
       <View className="mt-8">
-        {services.map((service, index) => {
+        {services.map((service) => {
           return (
-            <ServiceCard
-              key={index}
-              serviceImage={
-                'https://img.freepik.com/vetores-premium/logotipo-do-estilo-vintage-retro-do-restaurante_642964-120.jpg'
-              }
-              role={service.title}
-              address={service.description}
-              postedAgo={`R$ ${parseFloat(service.hours_value).toFixed(0)}/h`}
-              startDate={service.created_at}
-              startTime={service.hours}
-            />
+            <TouchableOpacity
+              key={service.id}
+              onPress={() => navigateToDetails(service.id)}
+            >
+              <ServiceCard
+                serviceImage={
+                  'https://img.freepik.com/vetores-premium/logotipo-do-estilo-vintage-retro-do-restaurante_642964-120.jpg'
+                }
+                role={service.title}
+                address={service.address}
+                postedAgo={`R$ ${parseFloat(service.hours_value).toFixed(0)}/h`}
+                startDate={service.service_date}
+                startTime={service.start_time}
+              />
+            </TouchableOpacity>
           )
         })}
-        <ServiceCard
-          serviceImage={
-            'https://img.freepik.com/vetores-premium/logotipo-do-estilo-vintage-retro-do-restaurante_642964-120.jpg'
-          }
-          role={''}
-          address="Moral Burguer"
-          postedAgo="5 min"
-          startDate="01/07/2023"
-          startTime="08:00 - 16:00"
-        />
       </View>
     </ScrollView>
   )
