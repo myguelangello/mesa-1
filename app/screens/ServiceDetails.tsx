@@ -39,6 +39,7 @@ export default function ServiceDetails({ route, navigation }) {
     >
       {/* Header */}
       <View className="mb-8 px-4">
+        {/* Header */}
         <View className="flex flex-row items-center justify-between">
           <TouchableOpacity
             activeOpacity={0.8}
@@ -57,6 +58,7 @@ export default function ServiceDetails({ route, navigation }) {
             <Icon name="heart" size={24} color="#875a33" />
           </TouchableOpacity>
         </View>
+
         {/* Logo Image */}
         <Image
           source={{

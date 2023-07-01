@@ -38,7 +38,11 @@ export default function Services({ navigation }) {
   }
 
   useEffect(() => {
-    getServices()
+    try {
+      getServices()
+    } catch (error) {
+      console.error(error)
+    }
   }, [])
 
   function navigateToDetails(serviceId: number) {
@@ -52,11 +56,12 @@ export default function Services({ navigation }) {
       contentInset={{ bottom, top }}
     >
       {/* Header */}
-      <View className="flex flex-row justify-center">
+      <View className="flex flex-row justify-between">
         <Title content="Serviços" />
         <TouchableOpacity
           activeOpacity={0.8}
           className="h-10 w-10 items-center justify-center rounded-full bg-red-500"
+          onPress={() => navigation.navigate('create-service')}
         >
           <Icon name="plus" size={24} color="#eaeaea" />
         </TouchableOpacity>
@@ -74,6 +79,7 @@ export default function Services({ navigation }) {
           return (
             <TouchableOpacity
               key={service.id}
+              activeOpacity={0.8}
               onPress={() => navigateToDetails(service.id)}
             >
               <ServiceCard
