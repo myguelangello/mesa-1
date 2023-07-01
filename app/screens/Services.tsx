@@ -1,13 +1,18 @@
+import { useEffect, useState } from 'react'
 import { ScrollView, TextInput, TouchableOpacity, View } from 'react-native'
-
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-
-import Icon from '@expo/vector-icons/FontAwesome5'
 
 import ServiceCard from '../components/ServiceCard'
 import Title from '../components/Title'
-import { useEffect, useState } from 'react'
+
 import { api } from '../../src/lib/api'
+
+import {
+  convertDate,
+  convertPostedAgo,
+} from '../../src/utils/convert-date-and-time'
+
+import Icon from '@expo/vector-icons/FontAwesome5'
 
 export interface FetchedServiceProps {
   id: number
@@ -20,6 +25,7 @@ export interface FetchedServiceProps {
   address: string
   service_date: string
   start_time: string
+  contractor: number
 }
 
 export default function Services({ navigation }) {
@@ -29,7 +35,9 @@ export default function Services({ navigation }) {
 
   async function getServices() {
     try {
-      const response = await api.get('/api/services/')
+      const response = (await api.get('/api/services/')) as {
+        data: FetchedServiceProps[]
+      }
 
       setServices(response.data)
     } catch (error) {
@@ -38,11 +46,7 @@ export default function Services({ navigation }) {
   }
 
   useEffect(() => {
-    try {
-      getServices()
-    } catch (error) {
-      console.error(error)
-    }
+    getServices()
   }, [])
 
   function navigateToDetails(serviceId: number) {
@@ -88,9 +92,9 @@ export default function Services({ navigation }) {
                 }
                 role={service.title}
                 address={service.address}
-                postedAgo={`R$ ${parseFloat(service.hours_value).toFixed(0)}/h`}
-                startDate={service.service_date}
-                startTime={service.start_time}
+                postedAgo={convertPostedAgo(service.created_at)} // `R$ ${parseFloat(service.hours_value).toFixed(0)}/h`
+                startDate={convertDate(service.service_date, 'DD/MM/YY')}
+                startTime={service.start_time.slice(0, -3)}
               />
             </TouchableOpacity>
           )

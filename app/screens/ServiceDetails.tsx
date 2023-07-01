@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ScrollView, View, Image, Text, TouchableOpacity } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
@@ -9,6 +9,7 @@ import { api } from '../../src/lib/api'
 import Title from '../components/Title'
 
 import Icon from '@expo/vector-icons/FontAwesome5'
+import { convertDate } from '../../src/utils/convert-date-and-time'
 
 export default function ServiceDetails({ route, navigation }) {
   const { bottom, top } = useSafeAreaInsets()
@@ -97,7 +98,7 @@ export default function ServiceDetails({ route, navigation }) {
             Data prevista
           </Text>
           <Text className="font-interRegular text-base text-gray-400">
-            {serviceDetails?.service_date}
+            {convertDate(serviceDetails?.service_date, 'dddd, D MMMM, YYYY')}
           </Text>
         </View>
 
@@ -107,7 +108,7 @@ export default function ServiceDetails({ route, navigation }) {
             Horário previsto (carga horária)
           </Text>
           <Text className="font-interRegular text-base text-gray-400">
-            {serviceDetails?.start_time} ({serviceDetails?.hours})
+            {serviceDetails?.start_time} ({serviceDetails?.hours.slice(0, -3)})
           </Text>
         </View>
 
