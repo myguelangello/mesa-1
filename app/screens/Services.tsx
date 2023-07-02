@@ -55,7 +55,7 @@ export default function Services({ navigation }) {
 
   return (
     <ScrollView
-      className="flex-1 px-4"
+      className="bgzinc flex-1 bg-zinc-50 px-4"
       contentContainerStyle={{ paddingBottom: bottom, paddingTop: top }}
       contentInset={{ bottom, top }}
     >
@@ -73,17 +73,17 @@ export default function Services({ navigation }) {
 
       {/* Search */}
       <TextInput
-        className="mt-8 h-[50] rounded-full border-[1px] border-gray-100 bg-zinc-50 px-4 pb-2 text-base text-gray-900"
+        className="mb-8 mt-8 h-12 rounded-full border-[1px] border-zinc-200 bg-zinc-50 px-4 pb-2 text-base text-gray-900 shadow-2xl"
         placeholderTextColor="#9e9ea0"
         placeholder="Pesquisar..."
       />
 
-      <View className="mt-8">
+      <View className="space-y-4 divide-y-2 divide-zinc-100">
         {services.map((service) => {
           return (
             <TouchableOpacity
               key={service.id}
-              activeOpacity={0.8}
+              activeOpacity={0.9}
               onPress={() => navigateToDetails(service.id)}
             >
               <ServiceCard

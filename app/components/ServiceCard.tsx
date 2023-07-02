@@ -18,7 +18,7 @@ export default function ServiceCard({
   startTime,
 }: ServiceProps) {
   return (
-    <View className="mb-8 h-20 flex-row space-x-2">
+    <View className="mt-4 h-20 flex-row space-x-2">
       {/* Create image of service */}
       <Image
         source={{ uri: serviceImage }}
@@ -32,7 +32,6 @@ export default function ServiceCard({
           <Text className="font-interSemiBold text-lg leading-tight text-gray-900">
             {role}
           </Text>
-
           <Text className="mt-2 font-interRegular text-xs leading-relaxed text-gray-200">
             {postedAgo}
           </Text>
