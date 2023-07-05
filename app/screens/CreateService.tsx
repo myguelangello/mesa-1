@@ -1,5 +1,5 @@
-import { useState } from 'react'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useState } from 'react'
 import {
   ScrollView,
   View,
@@ -8,22 +8,23 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
+  Platform,
+  KeyboardAvoidingView,
 } from 'react-native'
-import { StatusBar } from 'expo-status-bar'
-
-// eslint-disable-next-line no-unused-vars
-import { FetchedServiceProps } from './Services'
-import { api } from '../../src/lib/api'
 
 import Title from '../components/Title'
-
-import Icon from '@expo/vector-icons/FontAwesome5'
 import Button from '../components/Button'
 
+import Icon from '@expo/vector-icons/FontAwesome5'
 import * as ImagePicker from 'expo-image-picker'
+
+import { api } from '../../src/lib/api'
+import { StatusBar } from 'expo-status-bar'
 
 export default function CreateService({ route, navigation }) {
   const { bottom, top } = useSafeAreaInsets()
+
+  const [keyboardIsOpen, setKeyboardIsOpen] = useState(false)
 
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -86,150 +87,179 @@ export default function CreateService({ route, navigation }) {
     setPreview('')
   }
 
+  function handleKeyboardToggle() {
+    setKeyboardIsOpen(!keyboardIsOpen)
+  }
+
   return (
-    <ScrollView
-      className="flex-1 bg-brown-400"
-      contentContainerStyle={{ paddingBottom: bottom, paddingTop: top }}
-      contentInset={{ bottom, top }}
+    <KeyboardAvoidingView
+      className="flex flex-1"
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={keyboardIsOpen ? 80 : 0}
     >
-      {/* Header */}
-      <View className="mb-8 px-4">
+      <StatusBar style="light" />
+
+      <ScrollView
+        className="flex flex-1 bg-brown-400"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingBottom: bottom,
+          paddingTop: top,
+        }}
+        contentInset={{ bottom, top }}
+        keyboardShouldPersistTaps="handled"
+      >
         {/* Header */}
-        <View className="flex flex-row items-center justify-between">
-          <TouchableOpacity
-            activeOpacity={0.8}
-            className="h-10 w-10 items-center justify-center  rounded-full bg-transparent"
-            onPress={() => navigation.navigate('services')}
-          >
-            <Icon name="chevron-left" size={24} color="#eaeaea" />
-          </TouchableOpacity>
+        <View className="mb-8 px-4">
+          {/* Header */}
+          <View className="flex flex-row items-center justify-between">
+            <TouchableOpacity
+              activeOpacity={0.8}
+              className="h-10 w-10 items-center justify-center  rounded-full bg-transparent"
+              onPress={() => navigation.navigate('services')}
+            >
+              <Icon name="chevron-left" size={24} color="#eaeaea" />
+            </TouchableOpacity>
 
-          <Title content="Cadastrar" className="text-gray-50" />
+            <Title content="Cadastrar" className="text-gray-50" />
 
+            <TouchableOpacity
+              activeOpacity={0.8}
+              className="h-10 w-10 items-center justify-center  rounded-full bg-transparent "
+            >
+              <Icon name="heart" size={24} color="#875a33" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Image picker */}
           <TouchableOpacity
-            activeOpacity={0.8}
-            className="h-10 w-10 items-center justify-center  rounded-full bg-transparent "
+            activeOpacity={0.7}
+            onPress={openImagePicker}
+            className="mt-4 h-32 items-center justify-center rounded-lg border border-dashed border-gray-500 bg-black/20"
           >
-            <Icon name="heart" size={24} color="#875a33" />
+            {preview ? (
+              <Image
+                source={{ uri: preview }}
+                alt="Preview"
+                className="h-full w-full rounded-lg object-cover"
+              />
+            ) : (
+              <View className="flex-row items-center gap-2">
+                <Icon name="image" color="#fff" />
+                <Text className="font-body text-sm text-gray-200">
+                  Adicionar foto ou vídeo de capa
+                </Text>
+              </View>
+            )}
           </TouchableOpacity>
         </View>
 
-        {/* Image picker */}
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onPress={openImagePicker}
-          className="mt-4 h-32 items-center justify-center rounded-lg border border-dashed border-gray-500 bg-black/20"
-        >
-          {preview ? (
-            <Image
-              source={{ uri: preview }}
-              alt="Preview"
-              className="h-full w-full rounded-lg object-cover"
+        {/* Description */}
+        <View className="h-full bg-white px-4">
+          {/* Cargo */}
+          <View className="mt-4">
+            <Text className="font-interSemiBold text-xl text-gray-700">
+              Título
+            </Text>
+            <TextInput
+              value={title}
+              onChangeText={setTitle}
+              onFocus={handleKeyboardToggle}
+              onBlur={handleKeyboardToggle}
+              className="mt-1 w-full rounded-lg border-2 border-gray-200 px-4 py-3 font-interRegular text-base text-gray-400"
             />
-          ) : (
-            <View className="flex-row items-center gap-2">
-              <Icon name="image" color="#fff" />
-              <Text className="font-body text-sm text-gray-200">
-                Adicionar foto ou vídeo de capa
-              </Text>
-            </View>
-          )}
-        </TouchableOpacity>
-      </View>
+          </View>
 
-      {/* Description */}
-      <View className="h-full bg-white px-4">
-        {/* Cargo */}
-        <View className="mt-4">
-          <Text className="font-interSemiBold text-xl text-gray-700">
-            Título
-          </Text>
-          <TextInput
-            value={title}
-            onChangeText={setTitle}
-            className="mt-1 w-full rounded-lg border-2 border-gray-200 px-4 py-3 font-interRegular text-base text-gray-400"
+          {/* Descrição */}
+          <View className="mt-4">
+            <Text className="font-interSemiBold text-xl text-gray-700">
+              Descrição
+            </Text>
+            <TextInput
+              value={description}
+              onChangeText={setDescription}
+              onFocus={handleKeyboardToggle}
+              onBlur={handleKeyboardToggle}
+              className="mt-1 w-full rounded-lg border-2 border-gray-200 px-4 py-3 font-interRegular text-base text-gray-400"
+            />
+          </View>
+
+          {/* Local */}
+          <View className="mt-4">
+            <Text className="font-interSemiBold text-lg text-gray-700">
+              Endereço
+            </Text>
+            <TextInput
+              value={address}
+              onChangeText={setAddress}
+              onFocus={handleKeyboardToggle}
+              onBlur={handleKeyboardToggle}
+              className="mt-1 w-full rounded-lg border-2 border-gray-200 px-4 py-3 font-interRegular text-base text-gray-400"
+            />
+          </View>
+
+          {/* Data */}
+          <View className="mt-4">
+            <Text className="font-interSemiBold text-lg text-gray-700">
+              Data prevista
+            </Text>
+            <TextInput
+              value={service_date}
+              onChangeText={setServiceDate}
+              onFocus={handleKeyboardToggle}
+              onBlur={handleKeyboardToggle}
+              className="mt-1 w-full rounded-lg border-2 border-gray-200 px-4 py-3 font-interRegular text-base text-gray-400"
+            />
+          </View>
+
+          {/* Horário */}
+          <View className="mt-4">
+            <Text className="font-interSemiBold text-lg text-gray-700">
+              Horário previsto (carga horária)
+            </Text>
+            <TextInput
+              value={start_time}
+              onChangeText={setStartTime}
+              onFocus={handleKeyboardToggle}
+              onBlur={handleKeyboardToggle}
+              className="mt-1 w-full rounded-lg border-2 border-gray-200 px-4 py-3 font-interRegular text-base text-gray-400"
+            />
+          </View>
+
+          <View className="mt-4">
+            <Text className="font-interSemiBold text-lg text-gray-700">
+              Quantidade de horas
+            </Text>
+            <TextInput
+              value={hours}
+              onChangeText={setHours}
+              onFocus={handleKeyboardToggle}
+              onBlur={handleKeyboardToggle}
+              className="mt-1 w-full rounded-lg border-2 border-gray-200 px-4 py-3 font-interRegular text-base text-gray-400"
+            />
+          </View>
+
+          <View className="mt-4">
+            <Text className="font-interSemiBold text-lg text-gray-700">
+              Valor por hora
+            </Text>
+            <TextInput
+              value={hours_value}
+              onChangeText={setHoursValue}
+              onFocus={handleKeyboardToggle}
+              onBlur={handleKeyboardToggle}
+              className="mt-1 w-full rounded-lg border-2 border-gray-200 px-4 py-3 font-interRegular text-base text-gray-400"
+            />
+          </View>
+
+          {/* Botão */}
+          <Button
+            title="Publicar vaga"
+            className="mb-4 mt-8 w-full self-center"
+            onPress={handleCreateService}
           />
         </View>
-
-        {/* Descrição */}
-        <View className="mt-4">
-          <Text className="font-interSemiBold text-xl text-gray-700">
-            Descrição
-          </Text>
-          <TextInput
-            value={description}
-            onChangeText={setDescription}
-            className="mt-1 w-full rounded-lg border-2 border-gray-200 px-4 py-3 font-interRegular text-base text-gray-400"
-          />
-        </View>
-
-        {/* Local */}
-        <View className="mt-4">
-          <Text className="font-interSemiBold text-lg text-gray-700">
-            Endereço
-          </Text>
-          <TextInput
-            value={address}
-            onChangeText={setAddress}
-            className="mt-1 w-full rounded-lg border-2 border-gray-200 px-4 py-3 font-interRegular text-base text-gray-400"
-          />
-        </View>
-
-        {/* Data */}
-        <View className="mt-4">
-          <Text className="font-interSemiBold text-lg text-gray-700">
-            Data prevista
-          </Text>
-          <TextInput
-            value={service_date}
-            onChangeText={setServiceDate}
-            className="mt-1 w-full rounded-lg border-2 border-gray-200 px-4 py-3 font-interRegular text-base text-gray-400"
-          />
-        </View>
-
-        {/* Horário */}
-        <View className="mt-4">
-          <Text className="font-interSemiBold text-lg text-gray-700">
-            Horário previsto (carga horária)
-          </Text>
-          <TextInput
-            value={start_time}
-            onChangeText={setStartTime}
-            className="mt-1 w-full rounded-lg border-2 border-gray-200 px-4 py-3 font-interRegular text-base text-gray-400"
-          />
-        </View>
-
-        <View className="mt-4">
-          <Text className="font-interSemiBold text-lg text-gray-700">
-            Quantidade de horas
-          </Text>
-          <TextInput
-            value={hours}
-            onChangeText={setHours}
-            className="mt-1 w-full rounded-lg border-2 border-gray-200 px-4 py-3 font-interRegular text-base text-gray-400"
-          />
-        </View>
-
-        <View className="mt-4">
-          <Text className="font-interSemiBold text-lg text-gray-700">
-            Valor por hora
-          </Text>
-          <TextInput
-            value={hours_value}
-            onChangeText={setHoursValue}
-            className="mt-1 w-full rounded-lg border-2 border-gray-200 px-4 py-3 font-interRegular text-base text-gray-400"
-          />
-        </View>
-
-        {/* Botão */}
-        <Button
-          title="Publicar vaga"
-          className="mt-8 w-full self-center"
-          onPress={handleCreateService}
-        />
-      </View>
-
-      <StatusBar style="light" translucent />
-    </ScrollView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   )
 }

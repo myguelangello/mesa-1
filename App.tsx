@@ -1,5 +1,4 @@
 import 'react-native-gesture-handler'
-import { StatusBar } from 'expo-status-bar'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
 import {
@@ -11,6 +10,7 @@ import {
 
 import Routes from './app/routes'
 import Loading from './app/components/Loading'
+import { StatusBar } from 'expo-status-bar'
 
 export default function App() {
   const [hasLoadedFonts] = useFonts({
@@ -25,8 +25,8 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
+      <StatusBar />
       <Routes />
-      <StatusBar style="auto" translucent />
     </SafeAreaProvider>
   )
 }
