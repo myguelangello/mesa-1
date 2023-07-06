@@ -63,11 +63,11 @@ export default function Profile() {
         </View>
         <View className="-z-10 items-center bg-zinc-50 px-4 pb-0">
           <Title content="Myguel Angello" className="mt-14 text-zinc-900" />
-          <Text className="font-interRegular text-base leading-5 text-zinc-900 ">
+          <Text className="font-interRegular text-base leading-5 text-zinc-900">
             myguel@mail.com
           </Text>
 
-          <View className="space-y-4 divide-y-2 divide-zinc-100">
+          <View className="mt-8 w-full space-y-4 divide-y-2 divide-zinc-100">
             {services.map((service) => {
               return (
                 <TouchableOpacity key={service.id} activeOpacity={0.9}>
