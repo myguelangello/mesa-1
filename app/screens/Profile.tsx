@@ -40,10 +40,10 @@ export default function Profile() {
           paddingBottom: bottom,
           paddingTop: top,
         }}
-        className="flex min-h-screen flex-1"
+        className="flex flex-1"
       >
         {/* Header */}
-        <View className=" px-4">
+        <View className="px-4">
           {/* <Text className="font-interRegular text-base leading-5 text-zinc-50 ">
               Editar
             </Text> */}
@@ -58,16 +58,16 @@ export default function Profile() {
               uri: 'https://source.unsplash.com/random',
             }}
             alt="Profile picture"
-            className="top-8 z-20 mt-8 h-40 w-40 self-center rounded-full object-cover "
+            className="top-8 z-20 mt-6 h-40 w-40 self-center rounded-full"
           />
         </View>
         <View className="-z-10 items-center bg-zinc-50 px-4 pb-0">
           <Title content="Myguel Angello" className="mt-14 text-zinc-900" />
-          <Text className="font-interRegular text-base leading-5 text-zinc-900 ">
+          <Text className="my-3 font-interRegular text-base leading-5 text-zinc-900">
             myguel@mail.com
           </Text>
 
-          <View className="space-y-4 divide-y-2 divide-zinc-100">
+          <View className="my-10 flex w-full flex-1 space-y-4 divide-y-2 divide-zinc-100">
             {services.map((service) => {
               return (
                 <TouchableOpacity key={service.id} activeOpacity={0.9}>
