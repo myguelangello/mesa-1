@@ -1,9 +1,34 @@
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
-import { ScrollView, View } from 'react-native'
+import { ScrollView, View, Image, Text, TouchableOpacity } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import Title from '../components/Title'
+import ServiceCard from '../components/ServiceCard'
+import { useEffect, useState } from 'react'
+import {
+  convertPostedAgo,
+  convertDate,
+} from '../../src/utils/convert-date-and-time'
+import { api } from '../../src/lib/api'
+import { FetchedServiceProps } from './Services'
 
 export default function Profile() {
+  const [services, setServices] = useState<FetchedServiceProps[]>([])
+
+  async function getServices() {
+    try {
+      const response = (await api.get('/api/services/')) as {
+        data: FetchedServiceProps[]
+      }
+
+      setServices(response.data)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    getServices()
+  }, [])
   const { bottom, top } = useSafeAreaInsets()
   return (
     <SafeAreaView className="flex flex-1 bg-brown-400">
@@ -15,11 +40,51 @@ export default function Profile() {
           paddingBottom: bottom,
           paddingTop: top,
         }}
-        className="flex min-h-screen flex-1 px-4"
+        className="flex min-h-screen flex-1"
       >
         {/* Header */}
-        <View className="mb-8 flex flex-1 items-center px-4">
-          <Title content="Perfil" className="text-gray-50" />
+        <View className=" px-4">
+          {/* <Text className="font-interRegular text-base leading-5 text-zinc-50 ">
+              Editar
+            </Text> */}
+
+          <Title
+            content="Perfil"
+            className="text-center leading-9 text-zinc-50"
+          />
+
+          <Image
+            source={{
+              uri: 'https://source.unsplash.com/random',
+            }}
+            alt="Profile picture"
+            className="top-8 z-20 mt-8 h-40 w-40 self-center rounded-full object-cover "
+          />
+        </View>
+        <View className="-z-10 items-center bg-zinc-50 px-4 pb-0">
+          <Title content="Myguel Angello" className="mt-14 text-zinc-900" />
+          <Text className="font-interRegular text-base leading-5 text-zinc-900 ">
+            myguel@mail.com
+          </Text>
+
+          <View className="space-y-4 divide-y-2 divide-zinc-100">
+            {services.map((service) => {
+              return (
+                <TouchableOpacity key={service.id} activeOpacity={0.9}>
+                  <ServiceCard
+                    serviceImage={
+                      'https://img.freepik.com/vetores-premium/logotipo-do-estilo-vintage-retro-do-restaurante_642964-120.jpg'
+                    }
+                    role={service.title}
+                    address={service.address}
+                    postedAgo={convertPostedAgo(service.created_at)} // `R$ ${parseFloat(service.hours_value).toFixed(0)}/h`
+                    startDate={convertDate(service.service_date, 'DD/MM/YY')}
+                    startTime={service.start_time.slice(0, -3)}
+                  />
+                </TouchableOpacity>
+              )
+            })}
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
