@@ -56,10 +56,6 @@ export default function Services({ navigation }) {
     getServices()
   }, [])
 
-  useEffect(() => {
-    console.log('carregou')
-  }, [])
-
   function navigateToDetails(serviceId: number) {
     navigation.navigate('details', { itemId: serviceId })
   }
@@ -98,26 +94,35 @@ export default function Services({ navigation }) {
         />
 
         <View className="space-y-4 divide-y-2 divide-zinc-100">
-          {services.map((service) => {
-            return (
-              <TouchableOpacity
-                key={service.id}
-                activeOpacity={0.9}
-                onPress={() => navigateToDetails(service.id)}
-              >
-                <ServiceCard
-                  serviceImage={
-                    'https://img.freepik.com/vetores-premium/logotipo-do-estilo-vintage-retro-do-restaurante_642964-120.jpg'
-                  }
-                  role={service.title}
-                  address={service.address}
-                  postedAgo={convertPostedAgo(service.created_at)} // `R$ ${parseFloat(service.hours_value).toFixed(0)}/h`
-                  startDate={convertDate(service.service_date, 'DD/MM/YY')}
-                  startTime={service.start_time.slice(0, -3)}
-                />
-              </TouchableOpacity>
-            )
-          })}
+          {services ? (
+            <View className="mt-10 items-center justify-center">
+              <Title
+                content="No momento não temos serviços para exibir..."
+                className="mx-6 pt-40 text-center font-interMedium text-lg leading-relaxed text-zinc-400"
+              />
+            </View>
+          ) : (
+            services.map((service) => {
+              return (
+                <TouchableOpacity
+                  key={service.id}
+                  activeOpacity={0.9}
+                  onPress={() => navigateToDetails(service.id)}
+                >
+                  <ServiceCard
+                    serviceImage={
+                      'https://img.freepik.com/vetores-premium/logotipo-do-estilo-vintage-retro-do-restaurante_642964-120.jpg'
+                    }
+                    role={service.title}
+                    address={service.address}
+                    postedAgo={convertPostedAgo(service.created_at)} // `R$ ${parseFloat(service.hours_value).toFixed(0)}/h`
+                    startDate={convertDate(service.service_date, 'DD/MM/YY')}
+                    startTime={service.start_time.slice(0, -3)}
+                  />
+                </TouchableOpacity>
+              )
+            })
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
