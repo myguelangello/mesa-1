@@ -1,6 +1,10 @@
 import 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
+// add imports Oauth google
+import * as Google from 'expo-auth-session/providers/google'
+import * as SecureStore from 'expo-secure-store'
+
 import {
   useFonts,
   Inter_400Regular,
