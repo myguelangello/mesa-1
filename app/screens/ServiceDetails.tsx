@@ -43,7 +43,7 @@ export default function ServiceDetails({ route, navigation }) {
 
   return (
     <SafeAreaView className="flex flex-1 bg-brown-400">
-      <StatusBar style="light" />
+      <StatusBar style="light" backgroundColor="#875a33" />
 
       <ScrollView
         className="flex flex-grow bg-brown-400"

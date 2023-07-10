@@ -62,7 +62,7 @@ export default function Services({ navigation }) {
 
   return (
     <SafeAreaView className="flex flex-1 bg-zinc-50">
-      <StatusBar style="dark" />
+      <StatusBar style="light" backgroundColor="#875a33" />
 
       <ScrollView
         className="flex min-h-screen flex-1 px-4"
@@ -71,7 +71,7 @@ export default function Services({ navigation }) {
         contentContainerStyle={
           Platform.OS === 'ios'
             ? { paddingBottom: bottom }
-            : { paddingBottom: bottom }
+            : { paddingBottom: bottom, paddingTop: top }
         }
       >
         {/* Header */}
@@ -95,13 +95,6 @@ export default function Services({ navigation }) {
 
         <View className="space-y-4 divide-y-2 divide-zinc-100">
           {services ? (
-            <View className="mt-10 items-center justify-center">
-              <Title
-                content="No momento não temos serviços para exibir..."
-                className="mx-6 pt-40 text-center font-interMedium text-lg leading-relaxed text-zinc-400"
-              />
-            </View>
-          ) : (
             services.map((service) => {
               return (
                 <TouchableOpacity
@@ -122,6 +115,13 @@ export default function Services({ navigation }) {
                 </TouchableOpacity>
               )
             })
+          ) : (
+            <View className="mt-10 items-center justify-center">
+              <Title
+                content="No momento não temos serviços para exibir..."
+                className="mx-6 pt-40 text-center font-interMedium text-lg leading-relaxed text-zinc-400"
+              />
+            </View>
           )}
         </View>
       </ScrollView>

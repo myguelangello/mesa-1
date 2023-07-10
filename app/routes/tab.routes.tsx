@@ -1,9 +1,9 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 
-import StackRoutes from './stack.routes'
 import Profile from '../screens/Profile'
+import Services from '../screens/Services'
 
-import Icon from '@expo/vector-icons/Ionicons'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
 export default function TabRoutes() {
   const Tab = createBottomTabNavigator()
@@ -15,21 +15,23 @@ export default function TabRoutes() {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName
 
-          if (route.name === 'home') {
-            iconName = focused ? 'ios-home' : 'ios-home-sharp'
-          } else if (route.name === 'profile') {
-            iconName = focused ? 'ios-person' : 'ios-person-sharp'
+          if (route.name === 'Services') {
+            iconName = focused ? 'home' : 'home-outline'
+          } else if (route.name === 'Profile') {
+            iconName = focused ? 'account' : 'account-outline'
           }
 
           // You can return any component that you like here!
-          return <Icon name={iconName} size={size} color={color} />
+          return (
+            <MaterialCommunityIcons name={iconName} size={size} color={color} />
+          )
         },
         tabBarActiveTintColor: '#875a33',
         tabBarInactiveTintColor: '#9e9ea0',
       })}
     >
-      <Tab.Screen name="home" component={StackRoutes} />
-      <Tab.Screen name="profile" component={Profile} />
+      <Tab.Screen name="Services" component={Services} />
+      <Tab.Screen name="Profile" component={Profile} />
     </Tab.Navigator>
   )
 }
