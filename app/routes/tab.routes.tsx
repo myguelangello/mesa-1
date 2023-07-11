@@ -30,8 +30,8 @@ export default function TabRoutes() {
         tabBarInactiveTintColor: '#9e9ea0',
       })}
     >
-      <Tab.Screen name="Services" component={Services} />
       <Tab.Screen name="Profile" component={Profile} />
+      <Tab.Screen name="Services" component={Services} />
     </Tab.Navigator>
   )
 }

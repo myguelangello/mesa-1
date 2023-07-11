@@ -39,7 +39,7 @@ type ProfileScreenProps = {
   user: UserProps
 }
 
-export default function Profile({ navigation }: ProfileScreenProps) {
+export default function Profile({ navigation, user }: ProfileScreenProps) {
   const [services, setServices] = useState<FetchedServiceProps[]>([])
 
   async function getServices() {
@@ -54,16 +54,17 @@ export default function Profile({ navigation }: ProfileScreenProps) {
     }
   }
 
-  function loadingUserProfile(/* { user }: ProfileScreenProps */) {
-    // User Profile
+  function searchSecureStore(user: UserProps) {
+    if (user) {
+      console.log(user)
+    } else {
+      console.log('Not found')
+    }
   }
 
   useEffect(() => {
     getServices()
-  }, [])
-
-  useEffect(() => {
-    loadingUserProfile()
+    searchSecureStore(user)
   }, [])
 
   const { bottom, top } = useSafeAreaInsets()

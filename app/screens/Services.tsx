@@ -56,8 +56,8 @@ export default function Services({ navigation }) {
     getServices()
   }, [])
 
-  function navigateToDetails(serviceId: number) {
-    navigation.navigate('details', { itemId: serviceId })
+  function navigateToDetails(service: FetchedServiceProps) {
+    navigation.navigate('Details', { service })
   }
 
   return (
@@ -80,7 +80,7 @@ export default function Services({ navigation }) {
           <TouchableOpacity
             activeOpacity={0.8}
             className="h-10 w-10 items-center justify-center rounded-full bg-red-500"
-            onPress={() => navigation.navigate('create-service')}
+            onPress={() => navigation.navigate('NewService')}
           >
             <Icon name="plus" size={24} color="#eaeaea" />
           </TouchableOpacity>
@@ -100,7 +100,7 @@ export default function Services({ navigation }) {
                 <TouchableOpacity
                   key={service.id}
                   activeOpacity={0.9}
-                  onPress={() => navigateToDetails(service.id)}
+                  onPress={() => navigateToDetails(service)}
                 >
                   <ServiceCard
                     serviceImage={

@@ -118,7 +118,7 @@ export default function CreateService({ route, navigation }) {
               <TouchableOpacity
                 activeOpacity={0.8}
                 className="h-10 w-10 items-center justify-center  rounded-full bg-transparent"
-                onPress={() => navigation.navigate('services')}
+                onPress={() => navigation.navigate('Services')}
               >
                 <Icon name="chevron-left" size={24} color="#eaeaea" />
               </TouchableOpacity>

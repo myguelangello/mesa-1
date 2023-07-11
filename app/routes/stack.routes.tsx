@@ -4,13 +4,14 @@ import TabRoutes from './tab.routes'
 import ServiceDetails from '../screens/ServiceDetails'
 import CreateService from '../screens/CreateService'
 import Signin from '../screens/Signin'
+import { FetchedServiceProps } from '../screens/Services'
 
 export type RootStackParamList = {
   SignIn: undefined
   Home: undefined
   NewService: undefined
   Details: {
-    serviceId: number
+    service: FetchedServiceProps
   }
   Profile: {
     user: undefined

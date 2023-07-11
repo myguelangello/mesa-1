@@ -1,5 +1,5 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useEffect, useState } from 'react'
+
 import {
   ScrollView,
   View,
@@ -12,7 +12,6 @@ import {
 import { StatusBar } from 'expo-status-bar'
 
 import { FetchedServiceProps } from './Services'
-import { api } from '../../src/lib/api'
 
 import Title from '../components/Title'
 
@@ -21,25 +20,7 @@ import { convertDate } from '../../src/utils/convert-date-and-time'
 
 export default function ServiceDetails({ route, navigation }) {
   const { bottom, top } = useSafeAreaInsets()
-
-  const [serviceDetails, setServiceDetails] = useState<FetchedServiceProps>()
-
-  const { itemId } = route.params
-
-  async function getServices() {
-    try {
-      const response = await api.get(`/api/service-detail/${itemId}`)
-
-      setServiceDetails(response.data)
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  useEffect(() => {
-    getServices()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  const { service } = route.params as { service: FetchedServiceProps }
 
   return (
     <SafeAreaView className="flex flex-1 bg-brown-400">
@@ -84,7 +65,7 @@ export default function ServiceDetails({ route, navigation }) {
               uri: 'https://img.freepik.com/vetores-premium/logotipo-do-estilo-vintage-retro-do-restaurante_642964-120.jpg',
             }}
             alt="Logo do estabelecimento"
-            className="mt-8 aspect-video w-full rounded-xl"
+            className="mb-4  mt-8 aspect-video w-full rounded-xl"
           />
         </View>
 
@@ -93,10 +74,10 @@ export default function ServiceDetails({ route, navigation }) {
           {/* Cargo */}
           <View className="mt-4">
             <Text className="font-interSemiBold text-xl text-gray-700">
-              {serviceDetails?.title}
+              {service?.title}
             </Text>
             <Text className="font-interRegular text-base text-gray-400">
-              {serviceDetails?.description}
+              {service?.description}
             </Text>
           </View>
 
@@ -106,7 +87,7 @@ export default function ServiceDetails({ route, navigation }) {
               Endereço
             </Text>
             <Text className="font-interRegular text-base text-gray-400">
-              {serviceDetails?.address}
+              {service?.address}
             </Text>
           </View>
 
@@ -116,7 +97,7 @@ export default function ServiceDetails({ route, navigation }) {
               Data prevista
             </Text>
             <Text className="font-interRegular text-base text-gray-400">
-              {convertDate(serviceDetails?.service_date, 'dddd, D MMMM, YYYY')}
+              {convertDate(service?.service_date, 'dddd, D MMMM, YYYY')}
             </Text>
           </View>
 
@@ -126,8 +107,7 @@ export default function ServiceDetails({ route, navigation }) {
               Horário previsto (carga horária)
             </Text>
             <Text className="font-interRegular text-base text-gray-400">
-              {serviceDetails?.start_time} ({serviceDetails?.hours.slice(0, -3)}
-              )
+              {service?.start_time} ({service?.hours.slice(0, -3)})
             </Text>
           </View>
 
@@ -136,7 +116,7 @@ export default function ServiceDetails({ route, navigation }) {
               Valor por hora
             </Text>
             <Text className="font-interRegular text-base text-gray-400">
-              R$ {serviceDetails?.hours_value}
+              R$ {service?.hours_value}
             </Text>
           </View>
 

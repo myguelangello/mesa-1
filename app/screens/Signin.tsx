@@ -26,8 +26,6 @@ type AuthResponse = {
 export default function Signin({ navigation }: SignInProps) {
   const [userData, setUserData] = useState<UserProps>(null as UserProps)
 
-  let responseApiGoogle
-
   async function handleGoogleSignIn() {
     try {
       const CLIENT_ID =
@@ -45,14 +43,17 @@ export default function Signin({ navigation }: SignInProps) {
       if (type === 'success') {
         await SecureStore.setItemAsync('access_token', params.access_token)
 
-        responseApiGoogle = await fetch(
+        const response = await fetch(
           `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${params.access_token}`,
         )
-        const user = await responseApiGoogle.json()
+        const user = await response.json()
 
         setUserData(user)
 
-        navigation.navigate('Home', { userData })
+        const store = await SecureStore.getItemAsync('access_token')
+        if (store !== null && user !== null) {
+          navigation.navigate('Home', { userData })
+        }
       }
     } catch (error) {
       Alert.alert(
