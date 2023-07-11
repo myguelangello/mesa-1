@@ -10,6 +10,9 @@ import * as SecureStore from 'expo-secure-store'
 
 import { UserProps } from '../components/User'
 
+import { RadioGroup, RadioButtonProps } from 'react-native-radio-buttons-group'
+import { api } from '../../src/lib/api'
+
 WebBrowser.maybeCompleteAuthSession()
 
 type SignInProps = {
@@ -25,6 +28,15 @@ type AuthResponse = {
 
 export default function Signin({ navigation }: SignInProps) {
   const [userData, setUserData] = useState<UserProps>(null as UserProps)
+
+  const radioButtons: RadioButtonProps[] = [
+    { id: '1', label: 'Estou em busca de emprego' },
+    {
+      id: '2',
+      label: 'Estou em busca de um colaborador',
+    },
+  ]
+  const [roleUser, setRoleUser] = useState<string | undefined>()
 
   async function handleGoogleSignIn() {
     try {
@@ -51,7 +63,32 @@ export default function Signin({ navigation }: SignInProps) {
         setUserData(user)
 
         const store = await SecureStore.getItemAsync('access_token')
-        if (store !== null && user !== null) {
+        if (store !== null && user !== null && roleUser !== undefined) {
+          if (roleUser === '1') {
+            console.log(
+              'users infos',
+              user.name,
+              user.email,
+              user.picture,
+              roleUser,
+            )
+            const response = await api.post('/api/employees/', {
+              name: user.name,
+              email: user.email,
+              avatar: user.picture,
+              available: true,
+            })
+            console.log('employee', response.data)
+          } else if (roleUser === '2') {
+            const response = await api.post('/api/contractors/', {
+              name: user.name,
+              email: user.email,
+              avatar: user.picture,
+              available: true,
+            })
+            console.log('contractor', response.data)
+          }
+          console.log('userData', userData)
           navigation.navigate('Home', { userData })
         }
       }
@@ -76,14 +113,32 @@ export default function Signin({ navigation }: SignInProps) {
             </Text>
           </View>
         </View>
-        <View className="mt-20 flex w-full items-center justify-center px-2">
-          <TouchableOpacity
-            activeOpacity={0.8}
-            className="flex w-full items-center justify-center rounded-lg bg-red-500 p-4"
-            onPress={handleGoogleSignIn}
-          >
-            <Text className="text-lg text-zinc-50">Entrar com o Google</Text>
-          </TouchableOpacity>
+        <View className="mt-20 flex h-48 w-full items-center justify-between px-2">
+          <View className="w-full items-start justify-center gap-2 ">
+            <Text className="text-start font-interMedium text-lg text-zinc-700">
+              Qual o seu objetivo?
+            </Text>
+            <RadioGroup
+              containerStyle={{
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+              }}
+              radioButtons={radioButtons}
+              onPress={setRoleUser}
+              selectedId={roleUser}
+            />
+          </View>
+
+          {roleUser && (
+            <TouchableOpacity
+              activeOpacity={0.8}
+              className="flex w-full items-center justify-center rounded-lg bg-red-500 p-4"
+              onPress={handleGoogleSignIn}
+            >
+              <Text className="text-lg text-zinc-50">Entrar com o Google</Text>
+            </TouchableOpacity>
+          )}
         </View>
         <View className="mt-12 flex">
           <Text className="text-center text-sm text-zinc-600 underline">

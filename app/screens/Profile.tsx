@@ -54,17 +54,8 @@ export default function Profile({ navigation, user }: ProfileScreenProps) {
     }
   }
 
-  function searchSecureStore(user: UserProps) {
-    if (user) {
-      console.log(user)
-    } else {
-      console.log('Not found')
-    }
-  }
-
   useEffect(() => {
     getServices()
-    searchSecureStore(user)
   }, [])
 
   const { bottom, top } = useSafeAreaInsets()
