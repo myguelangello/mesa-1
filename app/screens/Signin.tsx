@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import * as WebBrowser from 'expo-web-browser'
 import { Text, TouchableOpacity, View, Alert } from 'react-native'
@@ -7,8 +7,6 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 // imports OAuth2 Google
 import * as AuthSession from 'expo-auth-session'
 import * as SecureStore from 'expo-secure-store'
-
-import { UserProps } from '../components/User'
 
 import { RadioGroup, RadioButtonProps } from 'react-native-radio-buttons-group'
 import { api } from '../../src/lib/api'
@@ -26,9 +24,18 @@ type AuthResponse = {
   }
 }
 
-export default function Signin({ navigation }: SignInProps) {
-  const [userData, setUserData] = useState<UserProps>(null as UserProps)
+type UserSecureStore = {
+  id?: string
+  name: string
+  email: string
+  picture: string
+  available: boolean
+  role: string
+}
 
+export default function Signin({ navigation }: SignInProps) {
+  const [isUserAuthenticated, setIsUserAuthenticated] = useState<boolean>(false)
+  const [roleUser, setRoleUser] = useState<string | undefined>()
   const radioButtons: RadioButtonProps[] = [
     { id: '1', label: 'Estou em busca de emprego' },
     {
@@ -36,7 +43,23 @@ export default function Signin({ navigation }: SignInProps) {
       label: 'Estou em busca de um colaborador',
     },
   ]
-  const [roleUser, setRoleUser] = useState<string | undefined>()
+
+  useEffect(() => {
+    async function verifyLogged() {
+      await SecureStore.getItemAsync('user').then((user) => {
+        setIsUserAuthenticated(!!user)
+        if (user) {
+          navigation.navigate('Home')
+        }
+      })
+    }
+    if (isUserAuthenticated) {
+      navigation.navigate('Home')
+    }
+    verifyLogged()
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   async function handleGoogleSignIn() {
     try {
@@ -53,53 +76,80 @@ export default function Signin({ navigation }: SignInProps) {
       })) as AuthResponse
 
       if (type === 'success') {
-        await SecureStore.setItemAsync('access_token', params.access_token)
-
-        const response = await fetch(
+        await SecureStore.setItemAsync('access_token', params.access_token) // setando o token de acesso no secure store
+        const response = await api.get(
           `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${params.access_token}`,
-        )
-        const user = await response.json()
+        ) // pegando os dados do usuário logado
 
-        setUserData(user)
+        const user = await response.data // setando os dados do usuário logado
+        user.role = roleUser // setando o tipo de usuário logado [1 - employee, 2 - contractor
+        user.available = true // setando o status de disponibilidade do usuário logado
+        console.log('new user', user)
+        await SecureStore.setItemAsync('user', JSON.stringify(user)) // setando os dados do usuário logado no secure store
 
-        const store = await SecureStore.getItemAsync('access_token')
-        if (store !== null && user !== null && roleUser !== undefined) {
-          if (roleUser === '1') {
-            console.log(
-              'users infos',
-              user.name,
-              user.email,
-              user.picture,
-              roleUser,
-            )
-            const response = await api.post('/api/employees/', {
-              name: user.name,
-              email: user.email,
-              avatar: user.picture,
-              available: true,
-            })
-            console.log('employee', response.data)
-          } else if (roleUser === '2') {
-            const response = await api.post('/api/contractors/', {
-              name: user.name,
-              email: user.email,
-              avatar: user.picture,
-              available: true,
-            })
-            console.log('contractor', response.data)
-          }
-          console.log('userData', userData)
-          navigation.navigate('Home', { userData })
+        const access_token = await SecureStore.getItemAsync('access_token') // pegando o token de acesso do secure store
+
+        const user_secure_store = await SecureStore.getItemAsync('user').then(
+          (user) => {
+            return JSON.parse(user) as UserSecureStore
+          },
+        ) // pegando os dados do usuário logado no secure store
+
+        console.log('user_secure_store', user_secure_store)
+        if (
+          access_token !== null &&
+          user_secure_store !== null &&
+          roleUser !== undefined
+        ) {
+          await handleRegisterUser(
+            user_secure_store.name,
+            user_secure_store.email,
+            user_secure_store.picture,
+            user_secure_store.available,
+            user_secure_store.role,
+          )
+          navigation.navigate('Home')
         }
       }
     } catch (error) {
-      Alert.alert(
-        'Erro',
-        'Não foi possível fazer o login. Por favor, tente novamente.',
-      )
+      Alert.alert('Erro ao logar com o Google', 'Por favor, tente novamente.')
       console.error(error)
     }
   }
+
+  async function handleRegisterUser(
+    name: string,
+    email: string,
+    picture: string,
+    available: boolean,
+    role: string,
+  ) {
+    try {
+      if (role === '1') {
+        const response = await api.post('/api/employees/', {
+          name,
+          email,
+          available,
+          avatar: picture,
+        })
+        return response.data
+      } else if (role === '2') {
+        const response = await api.post('/api/contractors/', {
+          name,
+          email,
+          available,
+          avatar: picture,
+        })
+        return response.data
+      }
+    } catch (error) {
+      Alert.alert(
+        'Erro ao login',
+        'Não foi possível fazer o login. Por favor, tente novamente.',
+      )
+    }
+  }
+
   return (
     <SafeAreaView className="flex h-screen flex-1 items-center justify-center">
       <View className="flex h-4/5 w-full flex-col items-center justify-between">
