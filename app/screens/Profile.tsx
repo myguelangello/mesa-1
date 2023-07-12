@@ -8,6 +8,7 @@ import {
   Text,
   TouchableOpacity,
   Platform,
+  Alert,
 } from 'react-native'
 
 import { RouteProp } from '@react-navigation/native'
@@ -26,6 +27,8 @@ import {
 import { api } from '../../src/lib/api' // API
 import { UserProps } from '../components/User'
 
+import * as SecureStore from 'expo-secure-store'
+
 // type route and navigation props
 type ProfileScreenRouteProp = RouteProp<RootStackParamList, 'Profile'>
 type ProfileScreenNavigationProp = StackNavigationProp<
@@ -42,21 +45,56 @@ type ProfileScreenProps = {
 export default function Profile({ navigation, user }: ProfileScreenProps) {
   const [services, setServices] = useState<FetchedServiceProps[]>([])
 
-  async function getServices() {
-    try {
-      const response = (await api.get('/api/services/')) as {
-        data: FetchedServiceProps[]
-      }
-
-      setServices(response.data)
-    } catch (error) {
-      console.error(error)
-    }
-  }
+  // profile infos
+  const [name, setName] = useState<string | undefined>()
+  const [email, setEmail] = useState<string | undefined>()
+  const [picture, setPicture] = useState<string | undefined>()
 
   useEffect(() => {
+    async function getServices() {
+      try {
+        const response = (await api.get('/api/services/')) as {
+          data: FetchedServiceProps[]
+        }
+
+        setServices(response.data)
+      } catch (error) {
+        console.error(error)
+      }
+    }
     getServices()
   }, [])
+
+  useEffect(() => {
+    async function getUser() {
+      try {
+        SecureStore.getItemAsync('user')
+          .then((user) => {
+            if (user) {
+              const userParsed = JSON.parse(user) as UserProps
+              setName(userParsed.name)
+              setEmail(userParsed.email)
+              setPicture(userParsed.picture)
+            }
+          })
+          .catch((error) => {
+            console.error(error)
+            Alert.alert('Erro ao carregar usuário')
+          })
+      } catch (error) {
+        console.error(error)
+      }
+    }
+    getUser()
+  }, [])
+
+  function handleLogout() {
+    SecureStore.deleteItemAsync('user').then(() => {
+      SecureStore.deleteItemAsync('token').then(() => {
+        navigation.navigate('SignIn')
+      })
+    })
+  }
 
   const { bottom, top } = useSafeAreaInsets()
   return (
@@ -103,21 +141,23 @@ export default function Profile({ navigation, user }: ProfileScreenProps) {
 
           <Image
             source={{
-              uri: 'https://capka.co.in/wp-content/uploads/2022/07/default-placeholder.png',
+              uri: picture, // 'https://capka.co.in/wp-content/uploads/2022/07/default-placeholder.png',
             }}
             alt="Profile picture"
             className="top-8 z-20 mt-6 h-40 w-40 self-center rounded-full"
           />
         </View>
         <View className="-z-10 min-h-min items-center bg-zinc-50 px-4 pb-0">
-          <Title content="Myguel Angello" className="mt-14 text-zinc-900" />
+          <Title content={name} className="mt-14 text-zinc-900" />
 
           <Text className="my-3 font-interRegular text-base leading-5 text-zinc-900">
-            myguel@mail.com
+            {email}
           </Text>
           <View className="flex flex-row items-center justify-center">
-            <Text className="ml-2 text-blue-500 underline"> Editar</Text>
-            <Text className="ml-2 text-red-500 underline"> Sair</Text>
+            <Text className="ml-2 text-blue-500 underline">Editar</Text>
+            <TouchableOpacity onPress={handleLogout}>
+              <Text className="ml-2 text-red-500 underline"> Sair</Text>
+            </TouchableOpacity>
           </View>
 
           <View className="my-10 flex w-full flex-1 space-y-4 divide-y-2 divide-zinc-100">
