@@ -61,9 +61,6 @@ export default function Services({ navigation }) {
   useEffect(() => {
     getServices()
   }, [])
-  useEffect(() => {
-    getServices()
-  }, [services])
 
   useEffect(() => {
     async function handleAuthenticated() {
