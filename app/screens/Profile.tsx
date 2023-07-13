@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Platform,
   Alert,
+  Switch,
 } from 'react-native'
 
 import { RouteProp } from '@react-navigation/native'
@@ -49,10 +50,18 @@ export default function Profile({ navigation, user }: ProfileScreenProps) {
   const [name, setName] = useState<string | undefined>()
   const [email, setEmail] = useState<string | undefined>()
   const [picture, setPicture] = useState<string | undefined>()
+  const [bio, setBio] = useState<string | undefined>()
+  const [isAvailable, setIsAvailable] = useState<boolean | undefined>()
+  const [role, setRole] = useState<string | undefined>()
 
   useEffect(() => {
     async function getServices() {
       try {
+        /**
+         * TODO: implementar busca de serviços por usuário
+         * 1- Caso o usuário seja um prestador de serviços (role === '1) buscar os serviços no qual ele é o prestador contratado
+         * 2- Caso o usuário seja um contratante de serviços (role === '2) buscar os serviços no qual ele cadastrou
+         */
         const response = (await api.get('/api/services/')) as {
           data: FetchedServiceProps[]
         }
@@ -75,17 +84,26 @@ export default function Profile({ navigation, user }: ProfileScreenProps) {
               setName(userParsed.name)
               setEmail(userParsed.email)
               setPicture(userParsed.picture)
+              setBio(userParsed.bio)
+              setIsAvailable(userParsed.available)
+              setRole(userParsed.role)
             }
           })
           .catch((error) => {
             console.error(error)
-            Alert.alert('Erro ao carregar usuário')
+            Alert.alert('Erro', 'Não foi possível carregar o usuário', [
+              {
+                text: 'Ok',
+                onPress: () => navigation.navigate('SignIn'),
+              },
+            ])
           })
       } catch (error) {
         console.error(error)
       }
     }
     getUser()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   function handleLogout() {
@@ -154,17 +172,46 @@ export default function Profile({ navigation, user }: ProfileScreenProps) {
             {email}
           </Text>
           <View className="flex flex-row items-center justify-center">
-            <Text className="ml-2 text-blue-500 underline">Editar</Text>
             <TouchableOpacity onPress={handleLogout}>
-              <Text className="ml-2 text-red-500 underline"> Sair</Text>
+              <Text className="ml-2 text-red-500 underline">Sair</Text>
             </TouchableOpacity>
           </View>
 
+          {role === '1' && (
+            <View className="mt-10 w-full flex-row items-center justify-start">
+              <Text className="font-body mr-2 text-base text-zinc-600">
+                Disponível para trabalhar?
+              </Text>
+              <Switch
+                value={isAvailable}
+                onValueChange={setIsAvailable}
+                trackColor={{ false: '#bebebf', true: '#d1bfb0' }}
+                thumbColor={isAvailable ? '#875a33' : '#9e9ea0'}
+              />
+            </View>
+          )}
+
           <View className="my-10 flex w-full flex-1 space-y-4 divide-y-2 divide-zinc-100">
             <Title
-              content="Serviços cadastrados"
-              className="text-start text-2xl text-zinc-800"
+              content="Biografia"
+              className="text-start text-xl text-zinc-800"
             />
+            {bio ? (
+              <Text className="text-start text-base text-zinc-800">{bio}</Text>
+            ) : (
+              <Text className="text-start text-base text-zinc-700">
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                Officiis obcaecati sequi consequuntur nulla.
+              </Text>
+            )}
+          </View>
+          {/* Serviços */}
+          <View className="mb-10 flex w-full flex-1  divide-y-2 divide-zinc-100">
+            <Title
+              content="Contratos"
+              className="text-start text-xl text-zinc-800"
+            />
+            {bio}
             {services.map((service) => {
               return (
                 <TouchableOpacity
