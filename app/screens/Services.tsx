@@ -11,6 +11,8 @@ import {
 import ServiceCard from '../components/ServiceCard'
 import Title from '../components/Title'
 
+import * as SecureStore from 'expo-secure-store'
+
 import { api } from '../../src/lib/api'
 
 import {
@@ -33,10 +35,14 @@ export interface FetchedServiceProps {
   service_date: string
   start_time: string
   contractor: number
+  enlisted?: number[]
+  image?: string
 }
 
 export default function Services({ navigation }) {
   const { bottom, top } = useSafeAreaInsets()
+
+  const [userRole, setUserRole] = useState<string | null>(null)
 
   const [services, setServices] = useState<FetchedServiceProps[]>([])
 
@@ -54,6 +60,18 @@ export default function Services({ navigation }) {
 
   useEffect(() => {
     getServices()
+  }, [])
+  useEffect(() => {
+    getServices()
+  }, [services])
+
+  useEffect(() => {
+    async function handleAuthenticated() {
+      await SecureStore.getItemAsync('user').then((user) => {
+        setUserRole(JSON.parse(user).role)
+      })
+    }
+    handleAuthenticated()
   }, [])
 
   function navigateToDetails(service: FetchedServiceProps) {
@@ -77,13 +95,16 @@ export default function Services({ navigation }) {
         {/* Header */}
         <View className="flex flex-row justify-between">
           <Title content="Serviços" />
-          <TouchableOpacity
-            activeOpacity={0.8}
-            className="h-10 w-10 items-center justify-center rounded-full bg-red-500"
-            onPress={() => navigation.navigate('NewService')}
-          >
-            <Icon name="plus" size={24} color="#eaeaea" />
-          </TouchableOpacity>
+
+          {userRole === '2' && (
+            <TouchableOpacity
+              activeOpacity={0.8}
+              className="h-10 w-10 items-center justify-center rounded-full bg-red-500"
+              onPress={() => navigation.navigate('NewService')}
+            >
+              <Icon name="plus" size={24} color="#eaeaea" />
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Search */}
