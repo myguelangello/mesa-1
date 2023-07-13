@@ -33,11 +33,16 @@ export default function ServiceDetails({ route, navigation }) {
 
   useEffect(() => {
     async function handleAuthenticated() {
-      await SecureStore.getItemAsync('user').then((user) => {
-        setUserRole(JSON.parse(user).role)
-        setUserId(JSON.parse(user).id)
-        console.log('user id =>', userId)
-      })
+      await SecureStore.getItemAsync('user')
+        .then((user) => {
+          setUserRole(JSON.parse(user).role)
+          setUserId(JSON.parse(user).id)
+          console.log('user id =>', userId)
+        })
+        .catch((error) => {
+          console.error(error)
+          navigation.navigate('SignIn')
+        })
     }
     handleAuthenticated()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -100,7 +105,7 @@ export default function ServiceDetails({ route, navigation }) {
             <TouchableOpacity
               activeOpacity={0.8}
               className="h-10 w-10 items-center justify-center  rounded-full bg-transparent"
-              onPress={() => navigation.navigate('Services')}
+              onPress={() => navigation.goBack()}
             >
               <Icon name="chevron-left" size={24} color="#eaeaea" />
             </TouchableOpacity>
