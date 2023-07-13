@@ -8,6 +8,7 @@ export type UserProps = {
   picture: string
   available?: boolean
   bio?: string
+  role: string
 }
 
 type Props = {
