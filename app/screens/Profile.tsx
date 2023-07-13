@@ -47,12 +47,17 @@ export default function Profile({ navigation, user }: ProfileScreenProps) {
   const [services, setServices] = useState<FetchedServiceProps[]>([])
 
   // profile infos
+  const [userId, setUserId] = useState<number | null>(null)
   const [name, setName] = useState<string | undefined>()
   const [email, setEmail] = useState<string | undefined>()
   const [picture, setPicture] = useState<string | undefined>()
   const [bio, setBio] = useState<string | undefined>()
   const [isAvailable, setIsAvailable] = useState<boolean | undefined>()
   const [role, setRole] = useState<string | undefined>()
+
+  const filteredServices = services.filter((service) =>
+    service.enlisted.includes(userId),
+  )
 
   useEffect(() => {
     async function getServices() {
@@ -75,7 +80,7 @@ export default function Profile({ navigation, user }: ProfileScreenProps) {
   }, [])
 
   useEffect(() => {
-    async function getUser() {
+    async function handleAuthenticated() {
       try {
         SecureStore.getItemAsync('user')
           .then((user) => {
@@ -87,6 +92,7 @@ export default function Profile({ navigation, user }: ProfileScreenProps) {
               setBio(userParsed.bio)
               setIsAvailable(userParsed.available)
               setRole(userParsed.role)
+              setUserId(userParsed.id)
             }
           })
           .catch((error) => {
@@ -102,7 +108,7 @@ export default function Profile({ navigation, user }: ProfileScreenProps) {
         console.error(error)
       }
     }
-    getUser()
+    handleAuthenticated()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -112,6 +118,10 @@ export default function Profile({ navigation, user }: ProfileScreenProps) {
         navigation.navigate('SignIn')
       })
     })
+  }
+
+  function navigateToDetails(service: FetchedServiceProps) {
+    navigation.navigate('Details', { service })
   }
 
   const { bottom, top } = useSafeAreaInsets()
@@ -205,19 +215,20 @@ export default function Profile({ navigation, user }: ProfileScreenProps) {
               </Text>
             )}
           </View>
+
           {/* Serviços */}
           <View className="mb-10 flex w-full flex-1  divide-y-2 divide-zinc-100">
             <Title
-              content="Contratos"
+              content="Candidaturas"
               className="text-start text-xl text-zinc-800"
             />
-            {bio}
-            {services.map((service) => {
+            {filteredServices.map((service) => {
               return (
                 <TouchableOpacity
                   key={service.id}
                   className="rounded-lg bg-zinc-100 p-3"
                   activeOpacity={0.9}
+                  onPress={() => navigateToDetails(service)}
                 >
                   <ServiceCard
                     serviceImage={
