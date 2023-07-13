@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 
-import * as WebBrowser from 'expo-web-browser'
-import { Text, TouchableOpacity, View, Alert } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-
 // imports OAuth2 Google
 import * as AuthSession from 'expo-auth-session'
 import * as SecureStore from 'expo-secure-store'
+import * as WebBrowser from 'expo-web-browser'
+
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { Text, TouchableOpacity, View, Alert } from 'react-native'
 
 import { RadioGroup, RadioButtonProps } from 'react-native-radio-buttons-group'
 import { api } from '../../src/lib/api'
@@ -25,7 +25,7 @@ type AuthResponse = {
 }
 
 type UserSecureStore = {
-  id?: string
+  id: number | null
   name: string
   email: string
   picture: string
@@ -84,7 +84,8 @@ export default function Signin({ navigation }: SignInProps) {
         const user = await response.data // setando os dados do usuário logado
         user.role = roleUser // setando o tipo de usuário logado [1 - employee, 2 - contractor
         user.available = true // setando o status de disponibilidade do usuário logado
-        console.log('new user', user)
+        user.id = null // setando o id como undefined para não dar erro na requisição
+
         await SecureStore.setItemAsync('user', JSON.stringify(user)) // setando os dados do usuário logado no secure store
 
         const access_token = await SecureStore.getItemAsync('access_token') // pegando o token de acesso do secure store
@@ -95,7 +96,6 @@ export default function Signin({ navigation }: SignInProps) {
           },
         ) // pegando os dados do usuário logado no secure store
 
-        console.log('user_secure_store', user_secure_store)
         if (
           access_token !== null &&
           user_secure_store !== null &&
@@ -108,7 +108,6 @@ export default function Signin({ navigation }: SignInProps) {
             user_secure_store.available,
             user_secure_store.role,
           )
-          navigation.navigate('Home')
         }
       }
     } catch (error) {
@@ -123,6 +122,7 @@ export default function Signin({ navigation }: SignInProps) {
     picture: string,
     available: boolean,
     role: string,
+    bio?: string,
   ) {
     try {
       if (role === '1') {
@@ -130,23 +130,122 @@ export default function Signin({ navigation }: SignInProps) {
           name,
           email,
           available,
-          avatar: picture,
         })
-        return response.data
+
+        if (response.status === 201) {
+          const updatedEmployees: UserSecureStore = {
+            id: response.data.id,
+            name,
+            email,
+            picture,
+            available,
+            role,
+          }
+          await updateUserInSecureStore(updatedEmployees) // atualizando os dados do usuário logado no secure store
+
+          Alert.alert(
+            'Bem-vindo ao Mesa 1!',
+            'Agora você pode encontrar um emprego de forma fácil.',
+            [
+              {
+                text: 'Ok',
+                onPress: () => navigation.navigate('Home'),
+              },
+            ],
+          )
+        } else if (response.status === 400) {
+          Alert.alert(
+            'Usuário já cadastrado.',
+            'Bem-bem-vindo de volta ao Mesa 1!',
+            [
+              {
+                text: 'Entrar',
+                onPress: () => navigation.navigate('Home'),
+              },
+            ],
+          )
+        } else {
+          Alert.alert(
+            'Não foi possível entrar como empregado.',
+            'Experimente mudar o perfil ou então tente mais tarde.',
+          )
+        }
       } else if (role === '2') {
         const response = await api.post('/api/contractors/', {
           name,
           email,
-          available,
-          avatar: picture,
+          bio,
         })
-        return response.data
+        if (response.status === 201) {
+          const updatedContractors: UserSecureStore = {
+            id: response.data.id,
+            name,
+            email,
+            picture,
+            available,
+            role,
+          }
+          await updateUserInSecureStore(updatedContractors) // atualizando os dados do usuário logado no secure store
+
+          Alert.alert(
+            'Bem-vindo ao Mesa 1!',
+            'Agora você pode encontrar um colaborador de forma fácil.',
+            [
+              {
+                text: 'Ok',
+                onPress: () => navigation.navigate('Home'),
+              },
+            ],
+          )
+        } else if (response.status === 400) {
+          Alert.alert(
+            'Usuário já cadastrado.',
+            'Bem-bem-vindo de volta ao Mesa 1!',
+            [
+              {
+                text: 'Entrar',
+                onPress: () => navigation.navigate('Home'),
+              },
+            ],
+          )
+        } else {
+          Alert.alert(
+            'Não foi possível entrar como contratante.',
+            'Experimente mudar o perfil ou então tente mais tarde.',
+          )
+        }
       }
     } catch (error) {
+      console.error(error)
       Alert.alert(
-        'Erro ao login',
-        'Não foi possível fazer o login. Por favor, tente novamente.',
+        'Erro ao entrar no Mesa 1',
+        'Não foi possível acessar. Por favor, tente novamente.',
       )
+    }
+  }
+  /* Função criada para atualizar o ID do usuário do Google para o do BANCO */
+  async function updateUserInSecureStore(user: UserSecureStore) {
+    try {
+      const currentUser = await SecureStore.getItemAsync('user')
+      if (currentUser !== null) {
+        console.log('é diferente de null')
+
+        const parsedUser: UserSecureStore = JSON.parse(currentUser)
+        parsedUser.id = user.id // Atualizando o id do usuário logado para o id do usuário criado no banco
+
+        const updatedUser: string = JSON.stringify(parsedUser) // transformando o objeto em string para poder salvar no secure store
+
+        await SecureStore.setItemAsync('user', updatedUser) // atualizando o usuário logado no secure store já com novo id
+        console.log('ID do usuário atualizado com sucesso!', 'ID: ', user.id)
+        console.log('updatedUser', updatedUser)
+      } else {
+        console.log(
+          'Usuário não encontrado no secure store.',
+          'Não foi possível atualizar o ID do usuário.',
+        )
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar o valor do usuário', error)
     }
   }
 
@@ -166,7 +265,7 @@ export default function Signin({ navigation }: SignInProps) {
         <View className="mt-20 flex h-48 w-full items-center justify-between px-2">
           <View className="w-full items-start justify-center gap-2 ">
             <Text className="text-start font-interMedium text-lg text-zinc-700">
-              Qual o seu objetivo?
+              Qual o seu perfil e objetivo?
             </Text>
             <RadioGroup
               containerStyle={{
