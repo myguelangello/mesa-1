@@ -1,5 +1,5 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   ScrollView,
   View,
@@ -13,11 +13,12 @@ import {
   SafeAreaView,
 } from 'react-native'
 
+import * as SecureStore from 'expo-secure-store'
+
 import Title from '../components/Title'
 import Button from '../components/Button'
 
 import Icon from '@expo/vector-icons/FontAwesome5'
-import * as ImagePicker from 'expo-image-picker'
 
 import { api } from '../../src/lib/api'
 import { StatusBar } from 'expo-status-bar'
@@ -34,11 +35,15 @@ export default function CreateService({ route, navigation }) {
   const [hours_value, setHoursValue] = useState('')
   const [service_date, setServiceDate] = useState('')
   const [start_time, setStartTime] = useState('')
-  const [contractor] = useState(1)
+  const [contractor, setContractor] = useState(0)
   const [preview, setPreview] = useState('')
 
-  async function openImagePicker() {
-    try {
+  function openImagePicker() {
+    Alert.alert(
+      'Em breve!',
+      'Funcionalidade em desenvolvimento para melhorar sua experiência.',
+    )
+    /* try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 1,
@@ -50,6 +55,20 @@ export default function CreateService({ route, navigation }) {
       }
     } catch (error) {
       // TODO: Tratar erro, se o suário não selecionou uma imagem não é um erro
+      console.error(error)
+    } */
+  }
+  useEffect(() => {
+    getUserRole()
+  }, [])
+  async function getUserRole() {
+    try {
+      const user = await SecureStore.getItemAsync('user')
+      const userParsed = JSON.parse(user)
+      if (userParsed && userParsed.role === '2') {
+        setContractor(userParsed.id)
+      }
+    } catch (error) {
       console.error(error)
     }
   }
@@ -160,9 +179,14 @@ export default function CreateService({ route, navigation }) {
           <View className="h-full bg-white px-4">
             {/* Cargo */}
             <View className="mt-4">
-              <Text className="font-interSemiBold text-xl text-gray-700">
-                Título
-              </Text>
+              <View className="flex flex-row items-center">
+                <Text className="mr-1 font-interSemiBold text-lg text-zinc-800">
+                  Título
+                </Text>
+                <Text className="font-interSemiBold text-lg text-red-600">
+                  *
+                </Text>
+              </View>
               <TextInput
                 value={title}
                 onChangeText={setTitle}
@@ -174,9 +198,14 @@ export default function CreateService({ route, navigation }) {
 
             {/* Descrição */}
             <View className="mt-4">
-              <Text className="font-interSemiBold text-xl text-gray-700">
-                Descrição
-              </Text>
+              <View className="flex flex-row items-center">
+                <Text className="mr-1 font-interSemiBold text-lg text-zinc-800">
+                  Descrição
+                </Text>
+                <Text className="font-interSemiBold text-lg text-red-600">
+                  *
+                </Text>
+              </View>
               <TextInput
                 value={description}
                 onChangeText={setDescription}
@@ -188,9 +217,14 @@ export default function CreateService({ route, navigation }) {
 
             {/* Local */}
             <View className="mt-4">
-              <Text className="font-interSemiBold text-lg text-gray-700">
-                Endereço
-              </Text>
+              <View className="flex flex-row items-center">
+                <Text className="mr-1 font-interSemiBold text-lg text-zinc-800">
+                  Endereço
+                </Text>
+                <Text className="font-interSemiBold text-lg text-red-600">
+                  *
+                </Text>
+              </View>
               <TextInput
                 value={address}
                 onChangeText={setAddress}
@@ -202,9 +236,14 @@ export default function CreateService({ route, navigation }) {
 
             {/* Data */}
             <View className="mt-4">
-              <Text className="font-interSemiBold text-lg text-gray-700">
-                Data prevista
-              </Text>
+              <View className="flex flex-row items-center">
+                <Text className="mr-1 font-interSemiBold text-lg text-zinc-800">
+                  Data prevista para o serviço
+                </Text>
+                <Text className="font-interSemiBold text-lg text-red-600">
+                  *
+                </Text>
+              </View>
               <TextInput
                 value={service_date}
                 onChangeText={setServiceDate}
@@ -216,9 +255,14 @@ export default function CreateService({ route, navigation }) {
 
             {/* Horário */}
             <View className="mt-4">
-              <Text className="font-interSemiBold text-lg text-gray-700">
-                Horário previsto (carga horária)
-              </Text>
+              <View className="flex flex-row items-center">
+                <Text className="mr-1 font-interSemiBold text-lg text-zinc-800">
+                  Horário inicial (carga horária)
+                </Text>
+                <Text className="font-interSemiBold text-lg text-red-600">
+                  *
+                </Text>
+              </View>
               <TextInput
                 value={start_time}
                 onChangeText={setStartTime}
@@ -229,9 +273,14 @@ export default function CreateService({ route, navigation }) {
             </View>
 
             <View className="mt-4">
-              <Text className="font-interSemiBold text-lg text-gray-700">
-                Quantidade de horas
-              </Text>
+              <View className="flex flex-row items-center">
+                <Text className="mr-1 font-interSemiBold text-lg text-zinc-800">
+                  Quantidade de horas
+                </Text>
+                <Text className="font-interSemiBold text-lg text-red-600">
+                  *
+                </Text>
+              </View>
               <TextInput
                 value={hours}
                 onChangeText={setHours}
@@ -242,9 +291,14 @@ export default function CreateService({ route, navigation }) {
             </View>
 
             <View className="mt-4">
-              <Text className="font-interSemiBold text-lg text-gray-700">
-                Valor por hora
-              </Text>
+              <View className="flex flex-row items-center">
+                <Text className="mr-1 font-interSemiBold text-lg text-zinc-800">
+                  Valor por hora
+                </Text>
+                <Text className="font-interSemiBold text-lg text-red-600">
+                  *
+                </Text>
+              </View>
               <TextInput
                 value={hours_value}
                 onChangeText={setHoursValue}
