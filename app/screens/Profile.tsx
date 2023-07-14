@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import {
@@ -12,13 +12,14 @@ import {
   Switch,
 } from 'react-native'
 
-import { RouteProp } from '@react-navigation/native'
+import { RouteProp, useIsFocused } from '@react-navigation/native'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { RootStackParamList } from '../routes/stack.routes'
 
 import Title from '../components/Title'
 import ServiceCard from '../components/ServiceCard'
 
+import * as SecureStore from 'expo-secure-store'
 import { FetchedServiceProps } from './Services' // Services Props
 
 import {
@@ -28,23 +29,29 @@ import {
 import { api } from '../../src/lib/api' // API
 import { UserProps } from '../components/User'
 
-import * as SecureStore from 'expo-secure-store'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
 // type route and navigation props
+// eslint-disable-next-line no-unused-vars
 type ProfileScreenRouteProp = RouteProp<RootStackParamList, 'Profile'>
+// eslint-disable-next-line no-unused-vars
 type ProfileScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
   'Profile'
 >
 
 type ProfileScreenProps = {
-  navigation: ProfileScreenNavigationProp
-  route: ProfileScreenRouteProp
-  user: UserProps
+  navigation: any
+  user?: UserProps
 }
 
 export default function Profile({ navigation, user }: ProfileScreenProps) {
+  const isFocused = useIsFocused()
+
   const [services, setServices] = useState<FetchedServiceProps[]>([])
+  const [filteredServices, setFilteredServices] = useState<
+    FetchedServiceProps[]
+  >([])
 
   // profile infos
   const [userId, setUserId] = useState<number | null>(null)
@@ -55,62 +62,69 @@ export default function Profile({ navigation, user }: ProfileScreenProps) {
   const [isAvailable, setIsAvailable] = useState<boolean | undefined>()
   const [role, setRole] = useState<string | undefined>()
 
-  const filteredServices = services.filter((service) =>
-    service.enlisted.includes(userId),
-  )
+  useEffect(() => {
+    getServices() // busca de serviços
+  }, [])
 
   useEffect(() => {
-    async function getServices() {
-      try {
-        /**
-         * TODO: implementar busca de serviços por usuário
-         * 1- Caso o usuário seja um prestador de serviços (role === '1) buscar os serviços no qual ele é o prestador contratado
-         * 2- Caso o usuário seja um contratante de serviços (role === '2) buscar os serviços no qual ele cadastrou
-         */
-        const response = (await api.get('/api/services/')) as {
-          data: FetchedServiceProps[]
-        }
+    handleAuthenticated() // verificando se o usuário está logado
+  }, [])
 
-        setServices(response.data)
-      } catch (error) {
-        console.error(error)
-      }
-    }
+  useEffect(() => {
+    handleFilteredServices() // está buscando todos os serviços por usuário
+  }, [])
+
+  useEffect(() => {
     getServices()
-  }, [])
-
-  useEffect(() => {
-    async function handleAuthenticated() {
-      try {
-        SecureStore.getItemAsync('user')
-          .then((user) => {
-            if (user) {
-              const userParsed = JSON.parse(user) as UserProps
-              setName(userParsed.name)
-              setEmail(userParsed.email)
-              setPicture(userParsed.picture)
-              setBio(userParsed.bio)
-              setIsAvailable(userParsed.available)
-              setRole(userParsed.role)
-              setUserId(userParsed.id)
-            }
-          })
-          .catch((error) => {
-            console.error(error)
-            Alert.alert('Erro', 'Não foi possível carregar o usuário', [
-              {
-                text: 'Ok',
-                onPress: () => navigation.navigate('SignIn'),
-              },
-            ])
-          })
-      } catch (error) {
-        console.error(error)
-      }
-    }
+    handleFilteredServices()
     handleAuthenticated()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [isFocused])
+
+  async function getServices() {
+    try {
+      /**
+       * TODO: implementar busca de serviços por usuário
+       * 1- Caso o usuário seja um prestador de serviços (role === '1) buscar os serviços no qual ele é o prestador contratado
+       * 2- Caso o usuário seja um contratante de serviços (role === '2) buscar os serviços no qual ele cadastrou
+       */
+      const response = (await api.get('/api/services/')) as {
+        data: FetchedServiceProps[]
+      }
+
+      setServices(response.data)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async function handleAuthenticated() {
+    try {
+      SecureStore.getItemAsync('user')
+        .then((user) => {
+          if (user) {
+            const userParsed = JSON.parse(user) as UserProps
+            setName(userParsed.name)
+            setEmail(userParsed.email)
+            setPicture(userParsed.picture)
+            setBio(userParsed.bio)
+            setIsAvailable(userParsed.available)
+            setRole(userParsed.role)
+            setUserId(userParsed.id)
+          }
+        })
+        .catch((error) => {
+          console.error(error)
+          Alert.alert('Erro', 'Não foi possível carregar o usuário', [
+            {
+              text: 'Ok',
+              onPress: () => navigation.navigate('SignIn'),
+            },
+          ])
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
   function handleLogout() {
     SecureStore.deleteItemAsync('user').then(() => {
@@ -118,6 +132,23 @@ export default function Profile({ navigation, user }: ProfileScreenProps) {
         navigation.navigate('SignIn')
       })
     })
+  }
+
+  function handleFilteredServices() {
+    if (role === '1') {
+      const hasUserId = services.filter((service) =>
+        service.enlisted.includes(userId),
+      )
+      setFilteredServices(hasUserId)
+    } else if (role === '2') {
+      const hasUserId = services.filter(
+        (service) => service.contractor === userId,
+      )
+      console.log(userId)
+      console.log(hasUserId)
+      setFilteredServices(hasUserId)
+      filteredServices.map((service) => console.log(service.title))
+    }
   }
 
   function navigateToDetails(service: FetchedServiceProps) {
@@ -175,7 +206,7 @@ export default function Profile({ navigation, user }: ProfileScreenProps) {
             className="top-8 z-20 mt-6 h-40 w-40 self-center rounded-full"
           />
         </View>
-        <View className="-z-10 min-h-min items-center bg-zinc-50 px-4 pb-0">
+        <View className="-z-10 items-center bg-zinc-50 px-4 pb-0">
           <Title content={name} className="mt-14 text-zinc-900" />
 
           <Text className="my-3 font-interRegular text-base leading-5 text-zinc-900">
@@ -201,7 +232,7 @@ export default function Profile({ navigation, user }: ProfileScreenProps) {
             </View>
           )}
 
-          <View className="my-10 flex w-full flex-1 space-y-4 divide-y-2 divide-zinc-100">
+          <View className="my-10 flex w-full flex-1 space-y-4 divide-zinc-100">
             <Title
               content="Biografia"
               className="text-start text-xl text-zinc-800"
@@ -217,32 +248,55 @@ export default function Profile({ navigation, user }: ProfileScreenProps) {
           </View>
 
           {/* Serviços */}
-          <View className="mb-10 flex w-full flex-1  divide-y-2 divide-zinc-100">
-            <Title
-              content="Candidaturas"
-              className="text-start text-xl text-zinc-800"
-            />
-            {filteredServices.map((service) => {
-              return (
-                <TouchableOpacity
-                  key={service.id}
-                  className="rounded-lg bg-zinc-100 p-3"
-                  activeOpacity={0.9}
-                  onPress={() => navigateToDetails(service)}
-                >
-                  <ServiceCard
-                    serviceImage={
-                      'https://img.freepik.com/vetores-premium/logotipo-do-estilo-vintage-retro-do-restaurante_642964-120.jpg'
-                    }
-                    role={service.title}
-                    address={service.address}
-                    postedAgo={convertPostedAgo(service.created_at)} // `R$ ${parseFloat(service.hours_value).toFixed(0)}/h`
-                    startDate={convertDate(service.service_date, 'DD/MM/YY')}
-                    startTime={service.start_time.slice(0, -3)}
-                  />
-                </TouchableOpacity>
-              )
-            })}
+          <View className="mb-20 flex w-full flex-1 space-y-4 divide-zinc-100">
+            <View className="flex flex-row items-center">
+              <Title
+                content={
+                  role === '1' ? 'Minhas candidaturas' : 'Serviços cadastrados'
+                }
+                className="mr-2 text-start text-xl text-zinc-800"
+              />
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={handleFilteredServices}
+              >
+                <MaterialCommunityIcons
+                  name="update"
+                  size={24}
+                  color="#875a33"
+                />
+              </TouchableOpacity>
+            </View>
+
+            {filteredServices.length > 0 ? (
+              filteredServices.map((service) => {
+                return (
+                  <TouchableOpacity
+                    key={service.id}
+                    className="rounded-lg bg-zinc-100 p-3"
+                    activeOpacity={0.9}
+                    onPress={() => navigateToDetails(service)}
+                  >
+                    <ServiceCard
+                      serviceImage={
+                        'https://img.freepik.com/vetores-premium/logotipo-do-estilo-vintage-retro-do-restaurante_642964-120.jpg'
+                      }
+                      role={service.title}
+                      address={service.address}
+                      postedAgo={convertPostedAgo(service.created_at)} // `R$ ${parseFloat(service.hours_value).toFixed(0)}/h`
+                      startDate={convertDate(service.service_date, 'DD/MM/YY')}
+                      startTime={service.start_time.slice(0, -3)}
+                    />
+                  </TouchableOpacity>
+                )
+              })
+            ) : (
+              <Text className="text-start text-base text-zinc-500">
+                {role === '1'
+                  ? 'Você ainda não se candidatou a nenhum serviço'
+                  : 'Você não possui serviços cadastrados'}
+              </Text>
+            )}
           </View>
         </View>
       </ScrollView>
